@@ -5,4 +5,9 @@ class Address{
   int y;
 
   Address([this.name, this.x, this.y]);
+
+  @override
+  String toString() {
+    return name;
+  }
 }
