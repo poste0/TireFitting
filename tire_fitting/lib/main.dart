@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tire_fitting/Address.dart';
+import 'package:tire_fitting/RequestCalendar.dart';
 import 'package:tire_fitting/ServicePoint.dart';
+import 'package:tire_fitting/ServicePointRepository.dart';
 
 void main() {
   runApp(MyApp());
@@ -38,7 +40,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<ServicePoint> servicePoints = [];
+  ServicePointRepository servicePointRepository = ServicePointRepository();
 
   var key = GlobalKey<FormState>();
 
@@ -58,9 +60,9 @@ class _MyHomePageState extends State<MyHomePage> {
               Expanded(
                 child: ListView.builder(
                   itemBuilder: (context, index) {
-                    return _servicePointCard(servicePoints[index], this);
+                    return _servicePointCard(servicePointRepository.get(index), this);
                   },
-                  itemCount: servicePoints.length,
+                  itemCount: servicePointRepository.getSize(),
                 ),
               ),
             ],
@@ -76,8 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
               }).then((value) => {
                 setState(() {
                   String name = value[0] + ", " + value[1] + ", " + value[2];
-                  servicePoints.add(
-                      ServicePoint(Address(name, 0, 0), int.parse(value[3])));
+                  ServicePointRepository().addServicePoint(ServicePoint(Address(name, 0, 0), int.parse(value[3])));
                 })
               })
         },
@@ -112,11 +113,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 actions: [
                   FlatButton(
                       onPressed: () {
-                        servicePoints.remove(servicePoint);
+                        servicePointRepository.removeServicePoint(servicePoint);
                         Navigator.pop(context);
                       },
                       child: Text("Delete",
                           style: Theme.of(context).textTheme.headline1)),
+                  FlatButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => RequestCalendar(servicePoint: servicePoint,)));
+                      },
+                      child: Text("Calendar",
+                          style: Theme.of(context).textTheme.headline1))
                 ],
               );
             }).then((value) {
@@ -159,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
   AlertDialog _getCreateServiceDialog() {
     List<TextEditingController> controllers = [];
     final fieldCount = 4;
-    for(var i = 0; i < fieldCount; i++){
+    for (var i = 0; i < fieldCount; i++) {
       controllers.add(TextEditingController());
     }
 
@@ -171,15 +178,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           children: [
             _getAddressPartTextFormField('City', controllers[0]),
-            _getAddressPartTextFormField(
-                'Street', controllers[1]),
-            _getAddressPartTextFormField(
-                'Building', controllers[2]),
+            _getAddressPartTextFormField('Street', controllers[1]),
+            _getAddressPartTextFormField('Building', controllers[2]),
             TextFormField(
               decoration: InputDecoration(
                   labelText: 'Count',
-                  labelStyle:
-                  Theme.of(context).textTheme.headline1),
+                  labelStyle: Theme.of(context).textTheme.headline1),
               controller: controllers[3],
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -197,8 +201,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.pop(context, texts);
               }
             },
-            child: Text("Ok",
-                style: Theme.of(context).textTheme.headline1)),
+            child: Text("Ok", style: Theme.of(context).textTheme.headline1)),
       ],
     );
   }

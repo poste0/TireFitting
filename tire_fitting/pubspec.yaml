@@ -21,6 +21,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  syncfusion_flutter_calendar: ^18.3.50
   flutter:
     sdk: flutter
 
