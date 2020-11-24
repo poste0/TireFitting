@@ -21,7 +21,7 @@ class RequestRepository{
     int workers = request.servicePoint.countOfStuff;
     int busyWorkers = getRequests(request.servicePoint).where((element) => isBusy(element, request)).length;
 
-    if(workers - busyWorkers < 0){
+    if(workers - busyWorkers <= 0){
       return false;
     }
     else{
@@ -36,6 +36,7 @@ class RequestRepository{
   }
 
   bool isBusy(Request request, Request addedRequest){
-    return request.time.isBefore(addedRequest.time) && request.endTime().isAfter(addedRequest.time);
+    return request.time.isBefore(addedRequest.time) && addedRequest.time.isBefore(request.endTime())
+        && request.time.isBefore(addedRequest.endTime()) && addedRequest.endTime().isBefore(request.endTime());
   }
 }

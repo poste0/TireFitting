@@ -6,4 +6,7 @@ class TireDismount implements RequestType{
     return 60 * 60 * (1 + (radius - 13) / 5);
   }
 
+  @override
+  String name = "Tire Dismount";
+
 }

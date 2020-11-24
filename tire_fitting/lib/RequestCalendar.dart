@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:tire_fitting/RequestCalendarAdd.dart';
 import 'package:tire_fitting/RequestRepository.dart';
 import 'package:tire_fitting/RequestType.dart';
 import 'package:tire_fitting/ServicePoint.dart';
@@ -32,9 +31,6 @@ class _RequestCalendarState extends State<RequestCalendar> {
       view: CalendarView.month,
       dataSource: RequestDataSource(_getRequests()),
       monthViewSettings: MonthViewSettings(showAgenda: true),
-      onLongPress: (CalendarLongPressDetails details) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => RequestCalendarAdd(details.date)));
-      },
     ));
   }
 

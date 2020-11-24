@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tire_fitting/Address.dart';
 import 'package:tire_fitting/RequestCalendar.dart';
+import 'package:tire_fitting/RequestCreate.dart';
 import 'package:tire_fitting/ServicePoint.dart';
 import 'package:tire_fitting/ServicePointRepository.dart';
 
@@ -43,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ServicePointRepository servicePointRepository = ServicePointRepository();
 
   var key = GlobalKey<FormState>();
+  var keys = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -60,11 +62,44 @@ class _MyHomePageState extends State<MyHomePage> {
               Expanded(
                 child: ListView.builder(
                   itemBuilder: (context, index) {
-                    return _servicePointCard(servicePointRepository.get(index), this);
+                    return _servicePointCard(
+                        servicePointRepository.get(index), this);
                   },
                   itemCount: servicePointRepository.getSize(),
                 ),
               ),
+              Row(
+                children: [
+                  FlatButton(
+                      onPressed: () => {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return _getCreateServiceDialog();
+                                }).then((value) => {
+                                  setState(() {
+                                    String name = value[0] +
+                                        ", " +
+                                        value[1] +
+                                        ", " +
+                                        value[2];
+                                    ServicePointRepository().addServicePoint(
+                                        ServicePoint(Address(name, 0, 0),
+                                            int.parse(value[3])));
+                                  })
+                                })
+                          },
+                      child: Text("Create a service")),
+                  FlatButton(
+                      child: Text("Create a request"),
+                      onPressed: () => {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => RequestCreate()))
+                          })
+                ],
+              )
             ],
           ),
         ),
@@ -78,12 +113,13 @@ class _MyHomePageState extends State<MyHomePage> {
               }).then((value) => {
                 setState(() {
                   String name = value[0] + ", " + value[1] + ", " + value[2];
-                  ServicePointRepository().addServicePoint(ServicePoint(Address(name, 0, 0), int.parse(value[3])));
+                  ServicePointRepository().addServicePoint(
+                      ServicePoint(Address(name, 0, 0), int.parse(value[3])));
                 })
               })
         },
         tooltip: 'Create a service',
-        child: Icon(Icons.add),
+        child: Text("Create a service"),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
@@ -120,7 +156,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           style: Theme.of(context).textTheme.headline1)),
                   FlatButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => RequestCalendar(servicePoint: servicePoint,)));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RequestCalendar(
+                                      servicePoint: servicePoint,
+                                    )));
                       },
                       child: Text("Calendar",
                           style: Theme.of(context).textTheme.headline1))
@@ -203,6 +244,39 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             child: Text("Ok", style: Theme.of(context).textTheme.headline1)),
       ],
+    );
+  }
+
+  AlertDialog _getCreateRequestDialog() {
+    List<ServicePoint> servicePoints = servicePointRepository.getAll();
+    ServicePoint currentServicePoint =
+        servicePoints.length > 0 ? servicePoints[0] : null;
+    int c = 0;
+    print(servicePoints.length.toString() + "s");
+
+    return AlertDialog(
+      title: Text("Create a request"),
+      key: keys,
+      content: Column(
+        children: [
+          DropdownButton<int>(
+            value: 1,
+            items: servicePoints
+                .map((e) => DropdownMenuItem<int>(
+                      child: Text(e.countOfStuff.toString()),
+                      value: e.countOfStuff,
+                    ))
+                .toList(),
+            onChanged: (value) {
+              if (keys.currentState.validate()) {
+                setState(() {
+                  c = value;
+                });
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 }
