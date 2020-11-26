@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tire_fitting/Address.dart';
 import 'package:tire_fitting/RequestCalendar.dart';
 import 'package:tire_fitting/RequestCreate.dart';
 import 'package:tire_fitting/ServicePoint.dart';
@@ -48,11 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController cityController = TextEditingController();
-    TextEditingController countOfStuffController = TextEditingController();
-    TextEditingController streetController = TextEditingController();
-    TextEditingController buildingController = TextEditingController();
-
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -84,8 +78,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                         ", " +
                                         value[2];
                                     ServicePointRepository().addServicePoint(
-                                        ServicePoint(Address(name, 0, 0),
-                                            int.parse(value[3])));
+                                        ServicePoint(
+                                            name, int.parse(value[3])));
                                   })
                                 })
                           },
@@ -103,23 +97,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return _getCreateServiceDialog();
-              }).then((value) => {
-                setState(() {
-                  String name = value[0] + ", " + value[1] + ", " + value[2];
-                  ServicePointRepository().addServicePoint(
-                      ServicePoint(Address(name, 0, 0), int.parse(value[3])));
-                })
-              })
-        },
-        tooltip: 'Create a service',
-        child: Text("Create a service"),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
@@ -175,19 +152,48 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              children: [
-                Text("Address", style: Theme.of(context).textTheme.headline1),
-                Text(servicePoint.address.name,
-                    style: Theme.of(context).textTheme.headline1)
-              ],
+            Container(
+              width: MediaQuery.of(context).size.width / 2,
+              child: Column(
+                children: [
+                  Align(
+                    child: Text("Address:" + servicePoint.address,
+                        style: Theme.of(context).textTheme.headline1),
+                    alignment: Alignment.centerLeft,
+                  ),
+                  SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                        "Count of stuff: " +
+                            servicePoint.countOfStuff.toString(),
+                        style: Theme.of(context).textTheme.headline1),
+                  ),
+                ],
+              ),
             ),
             Column(
               children: [
-                Text("Count of stuff",
-                    style: Theme.of(context).textTheme.headline1),
-                Text(servicePoint.countOfStuff.toString(),
-                    style: Theme.of(context).textTheme.headline1)
+                FlatButton(
+                    onPressed: (){
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RequestCalendar(
+                                servicePoint: servicePoint,
+                              )));
+                    },
+                    child: Icon(Icons.calendar_today, color: Colors.blueGrey)
+                ),
+                FlatButton(
+                  child: Icon(Icons.delete, color: Colors.blueGrey),
+                  onPressed: (){
+                    servicePointRepository.removeServicePoint(servicePoint);
+                    setState(() {
+
+                    });
+                  },
+                )
               ],
             )
           ],

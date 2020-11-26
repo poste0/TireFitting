@@ -36,7 +36,7 @@ class RequestRepository{
   }
 
   bool isBusy(Request request, Request addedRequest){
-    return request.time.isBefore(addedRequest.time) && addedRequest.time.isBefore(request.endTime())
-        && request.time.isBefore(addedRequest.endTime()) && addedRequest.endTime().isBefore(request.endTime());
+    return (addedRequest.time.isAfter(request.time) && addedRequest.time.isBefore(request.endTime())) ||
+        (addedRequest.endTime().isAfter(request.time) && addedRequest.endTime().isBefore(request.endTime()));
   }
 }
