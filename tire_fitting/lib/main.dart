@@ -47,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    Future<List<ServicePoint>> servicePoints = servicePointRepository.getAll();
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -54,12 +55,22 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             children: [
               Expanded(
-                child: ListView.builder(
-                  itemBuilder: (context, index) {
-                    return _servicePointCard(
-                        servicePointRepository.get(index), this);
+                child: FutureBuilder(
+                  future: servicePoints,
+                  builder: (context, snapshot){
+                    if(snapshot.hasData){
+                      return ListView.builder(
+                        itemBuilder: (context, index) {
+                          return _servicePointCard(
+                              snapshot.data[index], this);
+                        },
+                        itemCount: snapshot.data.length,
+                      );
+                    }
+                    else{
+                      return CircularProgressIndicator();
+                    }
                   },
-                  itemCount: servicePointRepository.getSize(),
                 ),
               ),
               Row(
@@ -77,9 +88,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                         value[1] +
                                         ", " +
                                         value[2];
-                                    ServicePointRepository().addServicePoint(
+                                    ServicePointRepository().add(
                                         ServicePoint(
-                                            name, int.parse(value[3])));
+                                            address: name,
+                                            countOfStuff: int.parse(value[3])));
                                   })
                                 })
                           },
@@ -126,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 actions: [
                   FlatButton(
                       onPressed: () {
-                        servicePointRepository.removeServicePoint(servicePoint);
+                        servicePointRepository.remove(servicePoint);
                         Navigator.pop(context);
                       },
                       child: Text("Delete",
@@ -188,7 +200,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 FlatButton(
                   child: Icon(Icons.delete, color: Colors.blueGrey),
                   onPressed: (){
-                    servicePointRepository.removeServicePoint(servicePoint);
+                    servicePointRepository.remove(servicePoint);
                     setState(() {
 
                     });
@@ -250,39 +262,6 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             child: Text("Ok", style: Theme.of(context).textTheme.headline1)),
       ],
-    );
-  }
-
-  AlertDialog _getCreateRequestDialog() {
-    List<ServicePoint> servicePoints = servicePointRepository.getAll();
-    ServicePoint currentServicePoint =
-        servicePoints.length > 0 ? servicePoints[0] : null;
-    int c = 0;
-    print(servicePoints.length.toString() + "s");
-
-    return AlertDialog(
-      title: Text("Create a request"),
-      key: keys,
-      content: Column(
-        children: [
-          DropdownButton<int>(
-            value: 1,
-            items: servicePoints
-                .map((e) => DropdownMenuItem<int>(
-                      child: Text(e.countOfStuff.toString()),
-                      value: e.countOfStuff,
-                    ))
-                .toList(),
-            onChanged: (value) {
-              if (keys.currentState.validate()) {
-                setState(() {
-                  c = value;
-                });
-              }
-            },
-          ),
-        ],
-      ),
     );
   }
 }

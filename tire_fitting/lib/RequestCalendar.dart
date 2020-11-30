@@ -26,17 +26,24 @@ class _RequestCalendarState extends State<RequestCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: SfCalendar(
-      view: CalendarView.month,
-      dataSource: RequestDataSource(_getRequests()),
-      monthViewSettings: MonthViewSettings(showAgenda: true),
-    ));
-  }
-
-  List<Request> _getRequests() {
-    List<Request> requests = RequestRepository().getRequests(servicePoint);
-
-    return requests;
+    return FutureBuilder(
+      future: RequestRepository().getAll(),
+      builder: (context, snapshot){
+        if(snapshot.hasData){
+          List<Request> requests = snapshot.data as List<Request>;
+          requests.forEach((element) {print(element.servicePoint.id);});
+          requests = requests.where((element) => element.servicePoint == servicePoint).toList();
+          return Container(
+              child: SfCalendar(
+                view: CalendarView.month,
+                dataSource: RequestDataSource(requests),
+                monthViewSettings: MonthViewSettings(showAgenda: true),
+              ));
+        }
+        else{
+          return CircularProgressIndicator();
+        }
+      }
+    );
   }
 }

@@ -1,6 +1,6 @@
 import 'RequestType.dart';
 
-class TireDismount implements RequestType{
+class TireDismount extends RequestType{
   @override
   double getDuration(int radius) {
     return 60 * 60 * (1 + (radius - 13) / 5);

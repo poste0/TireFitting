@@ -24,6 +24,9 @@ dependencies:
   syncfusion_flutter_calendar: ^18.3.50
   flutter:
     sdk: flutter
+  sqflite:
+  path:
+  uuid: 2.2.2
 
 
   # The following adds the Cupertino Icons font to your application.
