@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:tire_fitting/RequestCalendar.dart';
-import 'package:tire_fitting/RequestCreate.dart';
-import 'package:tire_fitting/ServicePoint.dart';
-import 'package:tire_fitting/ServicePointRepository.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_i18n/flutter_i18n_delegate.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:tire_fitting/data/Repository.dart';
+import 'package:tire_fitting/data/ServicePointRepository.dart';
+import 'package:tire_fitting/entity/ServicePoint.dart';
+import 'package:tire_fitting/ui/RequestCalendar.dart';
+import 'package:tire_fitting/ui/RequestCreate.dart';
+import 'package:tire_fitting/ui/ServicePointCreate.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,7 +18,22 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    Locale locale = Locale('ru', 'RU');
     return MaterialApp(
+      localizationsDelegates: [
+        FlutterI18nDelegate(
+          useCountryCode: false,
+          path: "lib/locale",
+          forcedLocale: locale
+        ),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate
+      ],
+      supportedLocales: [
+        const Locale('en', 'US'),
+        const Locale('ru', 'RU')
+      ],
       title: 'Flutter Demo',
       theme: ThemeData(
           primarySwatch: Colors.blue,
@@ -25,15 +46,13 @@ class MyApp extends StatelessWidget {
                   color: Colors.blueGrey),
               headline2: TextStyle(
                   fontFamily: "Poppins", fontSize: 14, color: Colors.grey))),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
+  MyHomePage({Key key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -45,10 +64,15 @@ class _MyHomePageState extends State<MyHomePage> {
   var key = GlobalKey<FormState>();
   var keys = GlobalKey<FormState>();
 
+  List<ServicePoint> servicePointList = [];
+
+  _MyHomePageState();
+
   @override
   Widget build(BuildContext context) {
     Future<List<ServicePoint>> servicePoints = servicePointRepository.getAll();
     return Scaffold(
+      appBar: getAppBar('service_points', context),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
@@ -57,53 +81,92 @@ class _MyHomePageState extends State<MyHomePage> {
               Expanded(
                 child: FutureBuilder(
                   future: servicePoints,
-                  builder: (context, snapshot){
-                    if(snapshot.hasData){
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      servicePointList = snapshot.data;
                       return ListView.builder(
                         itemBuilder: (context, index) {
-                          return _servicePointCard(
-                              snapshot.data[index], this);
+                          return _servicePointCard(snapshot.data[index], this);
                         },
                         itemCount: snapshot.data.length,
                       );
-                    }
-                    else{
+                    } else {
                       return CircularProgressIndicator();
                     }
                   },
                 ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  FlatButton(
-                      onPressed: () => {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return _getCreateServiceDialog();
-                                }).then((value) => {
-                                  setState(() {
-                                    String name = value[0] +
-                                        ", " +
-                                        value[1] +
-                                        ", " +
-                                        value[2];
-                                    ServicePointRepository().add(
-                                        ServicePoint(
-                                            address: name,
-                                            countOfStuff: int.parse(value[3])));
-                                  })
-                                })
-                          },
-                      child: Text("Create a service")),
-                  FlatButton(
-                      child: Text("Create a request"),
-                      onPressed: () => {
+                  Expanded(
+                    child: Card(
+                      child: FlatButton(
+                          /*onPressed: () => {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return _getCreateServiceDialog();
+                                    }).then((value) => {
+                                      setState(() {
+                                        String name = value[0] +
+                                            ", " +
+                                            value[1] +
+                                            ", " +
+                                            value[2];
+                                        ServicePointRepository().add(
+                                            ServicePoint(
+                                                address: name,
+                                                countOfStuff: int.parse(value[3])));
+                                      })
+                                    })
+                              },
+
+                           */
+                          onPressed: () {
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => RequestCreate()))
-                          })
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ServicePointCreate()))
+                                .then((value) => setState(() {}));
+                          },
+                          child: Text(FlutterI18n.translate(context, "create_service"),
+                              style: getMainStyle(context))),
+                    ),
+                  ),
+                  Expanded(
+                    child: Card(
+                      child: Builder(
+                        builder: (context) => FlatButton(
+                            child: Text(
+                              FlutterI18n.translate(context, "create_request"),
+                              style: getMainStyle(context),
+                            ),
+                            onPressed: (){
+                              if(servicePointList.isNotEmpty){
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => RequestCreate()));
+                              }
+                              else{
+                                Scaffold.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(FlutterI18n.translate(context, "there_is_no_service_points")),
+                                    action: SnackBarAction(
+                                      label: 'Ok',
+                                      onPressed: (){
+
+                                      },
+                                    ),
+                                  )
+                                );
+                              }
+                                }),
+                      ),
+                    ),
+                  )
                 ],
               )
             ],
@@ -134,15 +197,14 @@ class _MyHomePageState extends State<MyHomePage> {
               return AlertDialog(
                 content: Text(
                     "Service point " + servicePoint.address.toString(),
-                    style: Theme.of(context).textTheme.headline1),
+                    style: getMainStyle(context)),
                 actions: [
                   FlatButton(
                       onPressed: () {
                         servicePointRepository.remove(servicePoint);
                         Navigator.pop(context);
                       },
-                      child: Text("Delete",
-                          style: Theme.of(context).textTheme.headline1)),
+                      child: Text("Delete", style: getMainStyle(context))),
                   FlatButton(
                       onPressed: () {
                         Navigator.push(
@@ -152,8 +214,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       servicePoint: servicePoint,
                                     )));
                       },
-                      child: Text("Calendar",
-                          style: Theme.of(context).textTheme.headline1))
+                      child: Text("Calendar", style: getMainStyle(context)))
                 ],
               );
             }).then((value) {
@@ -169,7 +230,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 children: [
                   Align(
-                    child: Text("Address:" + servicePoint.address,
+                    child: Text(FlutterI18n.translate(context, "address") + ": " + servicePoint.address,
                         style: Theme.of(context).textTheme.headline1),
                     alignment: Alignment.centerLeft,
                   ),
@@ -177,7 +238,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                        "Count of stuff: " +
+                        FlutterI18n.translate(context, "count_of_stuff") +
                             servicePoint.countOfStuff.toString(),
                         style: Theme.of(context).textTheme.headline1),
                   ),
@@ -187,23 +248,20 @@ class _MyHomePageState extends State<MyHomePage> {
             Column(
               children: [
                 FlatButton(
-                    onPressed: (){
+                    onPressed: () {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => RequestCalendar(
-                                servicePoint: servicePoint,
-                              )));
+                                    servicePoint: servicePoint,
+                                  )));
                     },
-                    child: Icon(Icons.calendar_today, color: Colors.blueGrey)
-                ),
+                    child: Icon(Icons.calendar_today, color: Colors.blueGrey)),
                 FlatButton(
                   child: Icon(Icons.delete, color: Colors.blueGrey),
-                  onPressed: (){
+                  onPressed: () {
                     servicePointRepository.remove(servicePoint);
-                    setState(() {
-
-                    });
+                    setState(() {});
                   },
                 )
               ],
@@ -264,4 +322,15 @@ class _MyHomePageState extends State<MyHomePage> {
       ],
     );
   }
+}
+
+TextStyle getMainStyle(context) {
+  return Theme.of(context).textTheme.headline1;
+}
+
+AppBar getAppBar(String text, BuildContext context, {double scale = 1.5}) {
+  return AppBar(
+      title: Text(FlutterI18n.translate(context, text), textScaleFactor: scale),
+      backgroundColor: Colors.black,
+     );
 }

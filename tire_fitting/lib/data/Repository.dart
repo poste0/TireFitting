@@ -1,8 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:tire_fitting/Request.dart';
-import 'package:tire_fitting/ServicePoint.dart';
-import 'package:uuid/uuid.dart';
+import 'package:tire_fitting/data/Entity.dart';
 
 abstract class Repository<T extends Entity>{
   Database db;
@@ -22,9 +20,9 @@ abstract class Repository<T extends Entity>{
     database.insert(name, entity.toMap());
   }
 
-  Future<Database> initDb() async {
+  static Future<Database> initDb() async {
     final path = join(await getDatabasesPath(), 'tire_fitting.db');
-    //deleteDatabase(path);
+
     return openDatabase(
     path,
         onCreate: (db, version){
@@ -35,6 +33,12 @@ abstract class Repository<T extends Entity>{
         },
         version: 2
     );
+  }
+
+  static void deleteDb() async {
+    final path = join(await getDatabasesPath(), 'tire_fitting.db');
+
+    deleteDatabase(path);
   }
 
   Future<List<T>> getAll();
@@ -63,15 +67,4 @@ abstract class Repository<T extends Entity>{
 
   Future<T> getById(String id);
 
-}
-
-abstract class Entity {
-  String id = Uuid().v4();
-  String name;
-
-  Map<String, dynamic> toMap();
-
-  static List<Entity> fromMap(List<Map<String, dynamic>> map){
-    throw UnimplementedError();
-  }
 }

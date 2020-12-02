@@ -1,9 +1,7 @@
-import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:tire_fitting/Repository.dart';
-import 'package:tire_fitting/ServicePoint.dart';
-
-import 'Request.dart';
+import 'package:tire_fitting/data/Repository.dart';
+import 'package:tire_fitting/entity/Request.dart';
+import 'package:tire_fitting/entity/ServicePoint.dart';
 
 class RequestRepository extends Repository<Request>{
   static final RequestRepository _repository = RequestRepository._internal();

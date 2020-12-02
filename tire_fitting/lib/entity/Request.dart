@@ -1,9 +1,8 @@
-import 'package:sqflite/sqflite.dart';
-import 'package:tire_fitting/RequestType.dart';
-import 'package:tire_fitting/ServicePoint.dart';
+import 'package:tire_fitting/data/Entity.dart';
+import 'package:tire_fitting/data/ServicePointRepository.dart';
+import 'package:tire_fitting/entity/ServicePoint.dart';
+import 'package:tire_fitting/requestTypes/RequestType.dart';
 
-import 'Repository.dart';
-import 'ServicePointRepository.dart';
 
 class Request extends Entity{
   RequestType requestType;

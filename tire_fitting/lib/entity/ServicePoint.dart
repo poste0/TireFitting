@@ -1,6 +1,4 @@
-import 'package:tire_fitting/Repository.dart';
-import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
+import 'package:tire_fitting/data/Entity.dart';
 
 class ServicePoint extends Entity{
   String address;

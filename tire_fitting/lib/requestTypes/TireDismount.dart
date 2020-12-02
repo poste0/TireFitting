@@ -1,4 +1,4 @@
-import 'RequestType.dart';
+import 'package:tire_fitting/requestTypes/RequestType.dart';
 
 class TireDismount extends RequestType{
   @override
