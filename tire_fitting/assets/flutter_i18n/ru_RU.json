@@ -26,5 +26,11 @@
   "time": "Время",
   "enter_time": "Укажите время",
   "wheel_radius": "Радиус колеса",
-  "wheel_radius_range": "Радиус колеса 13-18"
+  "wheel_radius_range": "Радиус колеса 13-18",
+  "language": "Язык",
+  "tire_dismount": "Перебортовка",
+  "rubber_fix": "Ремонт резины",
+  "change_wheel": "Замена колеса",
+  "calendar": "Календарь",
+  "calendar_for_service": "Календарь для сервиса по адресу"
 }

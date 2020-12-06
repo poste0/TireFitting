@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 import '../entity/Request.dart';
@@ -15,7 +16,8 @@ class RequestDataSource extends CalendarDataSource{
 
   @override
   String getSubject(int index) {
-    return appointments[index].time.toString() + " name";
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+    return dateFormat.format(appointments[index].time);
   }
 
   @override

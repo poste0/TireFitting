@@ -26,5 +26,11 @@
   "time": "Time",
   "enter_time": "Enter time",
   "wheel_radius": "Wheel radius",
-  "wheel_radius_range": "Wheel radius 13-18"
+  "wheel_radius_range": "Wheel radius 13-18",
+  "language": "Language",
+  "tire_dismount": "Tire dismount",
+  "rubber_fix": "Rubber fix",
+  "change_wheel": "Change wheel",
+  "calendar": "Calendar",
+  "calendar_for_service": "Calendar for service point with address"
 }

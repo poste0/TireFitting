@@ -58,7 +58,7 @@ class RequestRepository extends Repository<Request>{
 
   @override
   Future<List<Request>> getAll() async {
-    Database database = db;
+    Database database = await db;
     List<Map<String, dynamic>> maps = await database.query(name);
 
     print('maps');

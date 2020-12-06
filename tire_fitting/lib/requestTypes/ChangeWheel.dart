@@ -6,6 +6,6 @@ class ChangeWheel extends RequestType{
     return 15 * 60 * (1 + (radius - 13) / 5);
   }
 
-  String name = 'Change Wheel';
+  String name = 'change_wheel';
 
 }

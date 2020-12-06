@@ -7,6 +7,6 @@ class TireDismount extends RequestType{
   }
 
   @override
-  String name = "Tire Dismount";
+  String name = "tire_dismount";
 
 }

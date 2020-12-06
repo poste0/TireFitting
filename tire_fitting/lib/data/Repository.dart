@@ -3,17 +3,24 @@ import 'package:sqflite/sqflite.dart';
 import 'package:tire_fitting/data/Entity.dart';
 
 abstract class Repository<T extends Entity>{
-  Database db;
+  Future<Database> db;
   String name;
+  bool isInit = false;
 
   Repository.withName(String name){
     this.name = name;
-    initDb().then((value){db = value; print('initDb');});
+    if(!isInit) {
+      db = initDb();
+      isInit = true;
+    }
   }
 
   Repository(){
-    initDb().then((value){db = value; db.rawQuery('SELECT name FROM sqlite_master WHERE type=\'table\'').then((value) => print(value));});
-  }
+    if(!isInit) {
+      db = initDb();
+      isInit = true;
+    }
+    }
 
   void add(T entity) async{
     Database database = await db;
@@ -22,7 +29,6 @@ abstract class Repository<T extends Entity>{
 
   static Future<Database> initDb() async {
     final path = join(await getDatabasesPath(), 'tire_fitting.db');
-
     return openDatabase(
     path,
         onCreate: (db, version){

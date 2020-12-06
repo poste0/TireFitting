@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:tire_fitting/data/RequestDataSource.dart';
 import 'package:tire_fitting/data/RequestRepository.dart';
 import 'package:tire_fitting/entity/Request.dart';
 import 'package:tire_fitting/entity/ServicePoint.dart';
-import 'package:tire_fitting/ui/main.dart';
+import 'file:///C:/TireFitting/tire_fitting/lib/main.dart';
 
 class RequestCalendar extends StatefulWidget {
   ServicePoint servicePoint;
@@ -25,12 +26,12 @@ class _RequestCalendarState extends State<RequestCalendar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: getAppBar('Calendar', context),
+      appBar: getAppBar('calendar', context),
       body: Padding(
         padding: const EdgeInsets.all(30.0),
         child: Column(
           children: [
-            Expanded(flex: 10, child: Text('Calendar for service point with address ' + servicePoint.address, style: getMainStyle(context))),
+            Expanded(flex: 10, child: Text(FlutterI18n.translate(context, 'calendar_for_service') + " " + servicePoint.address, style: getMainStyle(context))),
             Expanded(
               flex: 90,
               child: FutureBuilder(
@@ -45,6 +46,7 @@ class _RequestCalendarState extends State<RequestCalendar> {
                           view: CalendarView.month,
                           dataSource: RequestDataSource(requests),
                           monthViewSettings: MonthViewSettings(showAgenda: true),
+                          initialSelectedDate: DateTime.now(),
                         ));
                   }
                   else{

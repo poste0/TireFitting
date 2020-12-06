@@ -15,9 +15,8 @@ class ServicePointRepository extends Repository<ServicePoint>{
   ServicePointRepository._internal();
 
   Future<List<ServicePoint>> getAll() async{
-    db.rawQuery('SELECT name FROM sqlite_master WHERE type=\'table\'').then((value) => print('s' + value.toString()));
-    db.query('request').then((value) => print(value));
     final Database database = await db;
+    print(db);
     List<Map<String, dynamic>> maps = await database.query(name);
 
     print(maps.toString());

@@ -6,6 +6,6 @@ class RubberFix extends RequestType{
     return 30 * 60 * (1 + (radius - 13) / 5);
   }
 
-  String name = 'Rubber Fix';
+  String name = 'rubber_fix';
 
 }

@@ -14,7 +14,56 @@ void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale locale = Locale('ru', 'RU');
+
+  changeLanguage(Locale locale){
+    setState(() {
+      this.locale = locale;
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      localizationsDelegates: [
+        FlutterI18nDelegate(
+            useCountryCode: true,
+            path: "assets/flutter_i18n",
+            forcedLocale: locale
+        ),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate
+      ],
+      supportedLocales: [
+        const Locale('en', 'US'),
+        const Locale('ru', 'RU')
+      ],
+      title: 'Flutter Demo',
+      theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          textTheme: TextTheme(
+              headline1: TextStyle(
+                  fontFamily: "Poppins",
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueGrey),
+              headline2: TextStyle(
+                  fontFamily: "Poppins", fontSize: 14, color: Colors.grey))),
+      home: MyHomePage(changeLanguage: changeLanguage, currentLocale: locale,),
+      locale: locale
+    );
+  }
+}
+
+
+class MyApps extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -22,8 +71,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       localizationsDelegates: [
         FlutterI18nDelegate(
-          useCountryCode: false,
-          path: "lib/locale",
+          useCountryCode: true,
+          path: "assets/flutter_i18n",
           forcedLocale: locale
         ),
         GlobalMaterialLocalizations.delegate,
@@ -52,7 +101,11 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+  MyHomePage({Key key, this.changeLanguage, this.currentLocale}) : super(key: key);
+
+  Function(Locale locale) changeLanguage;
+
+  Locale currentLocale;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -78,11 +131,32 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(FlutterI18n.translate(context, 'language')),
+                  ),
+                  Expanded(
+                      child:  DropdownButton(items: [
+                        DropdownMenuItem(child: Text('English'), value: Locale('en', 'US'),),
+                        DropdownMenuItem(child: Text('Русский'), value: Locale('ru', 'RU'),)
+                      ], onChanged: (value){
+                        widget.changeLanguage(value);
+                      },
+                        value: widget.currentLocale,
+                      )
+                  )
+                ],
+              ),
               Expanded(
                 child: FutureBuilder(
                   future: servicePoints,
                   builder: (context, snapshot) {
-                    if (snapshot.hasData) {
+                    if(snapshot.hasError){
+                      return Text('Wrong' + snapshot.error.toString());
+                    }
+                    else if (snapshot.hasData) {
                       servicePointList = snapshot.data;
                       return ListView.builder(
                         itemBuilder: (context, index) {
@@ -91,7 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         itemCount: snapshot.data.length,
                       );
                     } else {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     }
                   },
                 ),
@@ -166,9 +240,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 }),
                       ),
                     ),
-                  )
+                  ),
+
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -225,46 +300,54 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              width: MediaQuery.of(context).size.width / 2,
-              child: Column(
-                children: [
-                  Align(
-                    child: Text(FlutterI18n.translate(context, "address") + ": " + servicePoint.address,
-                        style: Theme.of(context).textTheme.headline1),
-                    alignment: Alignment.centerLeft,
-                  ),
-                  SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                        FlutterI18n.translate(context, "count_of_stuff") +
-                            servicePoint.countOfStuff.toString(),
-                        style: Theme.of(context).textTheme.headline1),
-                  ),
-                ],
+            Expanded(
+              flex: 5,
+              child: Container(
+                child: Column(
+                  children: [
+                    Align(
+                      child: Text(FlutterI18n.translate(context, "address") + ": " + servicePoint.address,
+                          style: Theme.of(context).textTheme.headline1),
+                      alignment: Alignment.centerLeft,
+                    ),
+                    SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                          FlutterI18n.translate(context, "count_of_stuff") +
+                              ": " +
+                              servicePoint.countOfStuff.toString(),
+                          style: Theme.of(context).textTheme.headline1),
+                    ),
+                  ],
+                ),
               ),
             ),
-            Column(
-              children: [
-                FlatButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => RequestCalendar(
-                                    servicePoint: servicePoint,
-                                  )));
-                    },
-                    child: Icon(Icons.calendar_today, color: Colors.blueGrey)),
-                FlatButton(
-                  child: Icon(Icons.delete, color: Colors.blueGrey),
-                  onPressed: () {
-                    servicePointRepository.remove(servicePoint);
-                    setState(() {});
-                  },
-                )
-              ],
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Column(
+                  children: [
+                    FlatButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => RequestCalendar(
+                                        servicePoint: servicePoint,
+                                      )));
+                        },
+                        child: Icon(Icons.calendar_today, color: Colors.blueGrey)),
+                    FlatButton(
+                      child: Icon(Icons.delete, color: Colors.blueGrey),
+                      onPressed: () {
+                        servicePointRepository.remove(servicePoint);
+                        setState(() {});
+                      },
+                    )
+                  ],
+                ),
+              ),
             )
           ],
         ),

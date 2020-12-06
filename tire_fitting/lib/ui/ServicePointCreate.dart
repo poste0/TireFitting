@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:tire_fitting/data/ServicePointRepository.dart';
 import 'package:tire_fitting/entity/ServicePoint.dart';
-import 'package:tire_fitting/ui/main.dart';
+import 'file:///C:/TireFitting/tire_fitting/lib/main.dart';
 
 class ServicePointCreate extends StatefulWidget {
   @override
